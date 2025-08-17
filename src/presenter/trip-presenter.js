@@ -5,13 +5,15 @@ import Sorting from '../view/sorting.js';
 import Waypoint from '../view/waypoint.js';
 import ButtonNewEvent from '../view/button-new-event.js';
 import NoEvent from '../view/no-event.js';
+import TripInfo from '../view/trip-info.js';
+import { generateFilter } from '../mock/filter.js';
 export default class TripPresenter {
   #headerContainer;
   #mainContainer;
   #waypointModel;
-  #filters = new Filters();
   #sorting = new Sorting();
   #buttonNewEvent = new ButtonNewEvent();
+  #tripInfo = new TripInfo();
   #waypoints = [];
 
   constructor({ headerContainer, mainContainer, waypointModel }) {
@@ -67,8 +69,10 @@ export default class TripPresenter {
   }
 
   #renderApp() {
-    render(this.#filters, this.#headerContainer);
+    const filters = generateFilter(this.#waypoints);
+    render(new Filters({ filters }), this.#headerContainer);
     render(this.#buttonNewEvent, this.#headerContainer, RenderPosition.AFTEREND);
+    render(this.#tripInfo, this.#headerContainer, RenderPosition.BEFOREBEGIN);
 
     if (this.#waypoints.length === 0) {
       render(new NoEvent(), this.#mainContainer);
