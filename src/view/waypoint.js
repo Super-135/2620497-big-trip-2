@@ -1,9 +1,9 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeDueDate, getDuration } from '../mock/utils.js';
-import { DATE_FORMAT } from '../mock/constants.js';
+import { humanizeDueDate, getDuration } from '../utils/utilities.js';
+import { DateFormat } from '../utils/constants.js';
 
 function createStartDateTemplate(start) {
-  return (`<time class="event__date" datetime="${humanizeDueDate(start, DATE_FORMAT.fullDate)}">${humanizeDueDate(start, DATE_FORMAT.day)}</time>`);
+  return (`<time class="event__date" datetime="${humanizeDueDate(start, DateFormat.FULL_DATE)}">${humanizeDueDate(start, DateFormat.DAY)}</time>`);
 }
 
 function createTypeEventTemplate(waypoint, destination) {
@@ -18,9 +18,9 @@ function createTypeEventTemplate(waypoint, destination) {
 function createScheduleTemplate(start, end) {
   return (`<div class="event__schedule">
     <p class="event__time">
-      <time class="event__start-time" datetime="2019-03-18T10:30">${humanizeDueDate(start, DATE_FORMAT.hoursMinutes)}</time>
+      <time class="event__start-time" datetime="2019-03-18T10:30">${humanizeDueDate(start, DateFormat.HOURS_MINUTES)}</time>
       &mdash;
-      <time class="event__end-time" datetime="2019-03-18T11:00">${humanizeDueDate(end, DATE_FORMAT.hoursMinutes)}</time>
+      <time class="event__end-time" datetime="2019-03-18T11:00">${humanizeDueDate(end, DateFormat.HOURS_MINUTES)}</time>
     </p>
     <p class="event__duration">${getDuration(start, end)}</p>
   </div>`);

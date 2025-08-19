@@ -1,4 +1,4 @@
-import { filter } from './utils.js';
+import { filter } from '../utils/utilities.js';
 
 /**
  * Генерация массива фильтров для точек назначения

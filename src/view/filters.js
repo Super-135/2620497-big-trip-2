@@ -31,6 +31,7 @@ function createFiltersTemplate(filterItems) {
 
 export default class Filters extends AbstractView {
   #filters;
+
   constructor({ filters }) {
     super();
     this.#filters = filters;
