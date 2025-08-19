@@ -225,7 +225,7 @@ const getRandomWaypoint = () => {
     dateFrom: date['date-from'],
     dateTo: date['date-to'],
     destination: destination.id,
-    favorite: date['is-favorite'],
+    isFavorite: date['is-favorite'],
     offersId,
     type,
   };
