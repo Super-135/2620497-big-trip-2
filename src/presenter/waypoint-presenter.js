@@ -8,6 +8,8 @@ export default class WaypointPresenter {
   #waypointComponent = null;
   #waypointEditComponent = null;
   #waypoint = null;
+  #offersType = null;
+  #destination = null;
   #handleDataChange = null;
   #handleModeChange = null;
   #mode = Mode.DEFAULT;
@@ -21,6 +23,8 @@ export default class WaypointPresenter {
 
   init(point) {
     this.#waypoint = point;
+    this.#offersType = this.#waypointModel.getOffersByType(point.type);
+    this.#destination = this.#waypointModel.getDestinationsById(point.destination);
 
     const prevWaypointComponent = this.#waypointComponent;
     const prevWaypointEditComponent = this.#waypointEditComponent;
@@ -28,17 +32,18 @@ export default class WaypointPresenter {
     this.#waypointComponent = new Waypoint({
       waypoint: this.#waypoint,
       offers: [...this.#waypointModel.getOffersById(point.type, point.offersId)],
-      destination: this.#waypointModel.getDestinationsById(point.destination),
+      destination: this.#destination,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#waypointEditComponent = new FormEdit({
       waypoint: this.#waypoint,
-      offersType: this.#waypointModel.getOffersByType(point.type),
+      offersType: this.#offersType,
       offers: [...this.#waypointModel.getOffersById(point.type, point.offersId)],
-      destination: this.#waypointModel.getDestinationsById(point.destination),
+      destination: this.#destination,
       destinationAll: this.#waypointModel.destinations,
+      offersAll: [...this.#waypointModel.offers],
       onFormSubmit: this.#handleFormSubmit,
     });
 
@@ -65,12 +70,14 @@ export default class WaypointPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
+      this.#waypointEditComponent.reset(this.#waypoint, this.#offersType, this.#destination);
       this.#replaceFormToPoint();
     }
   };
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#waypointEditComponent.reset(this.#waypoint, this.#offersType, this.#destination);
       this.#replaceFormToPoint();
     }
   }
