@@ -1,26 +1,33 @@
 import Observable from '../framework/observable.js';
-import { mockDestination } from '../mock/waypoints.js';
-
+import { UpdateType } from '../utils/constants.js';
 export default class DestinationModel extends Observable {
+  #waypointsApiService;
+  #destinations = [];
 
-  /**
-     * @type {Destination[]}
-     */
-  #destination = mockDestination;
+  constructor({ waypointsApiService }) {
+    super();
+    this.#waypointsApiService = waypointsApiService;
+  }
 
   /**
     * @returns {Destination[]}
     */
   get destinations() {
-    return this.#destination;
+    return this.#destinations;
   }
 
-  /**
-   * @param {RandomWaypoint.destination} id
-   * @returns {Destination[]} destinations
-  */
+  async init() {
+    try {
+      this.#destinations = await this.#waypointsApiService.destinations;
+    } catch (err) {
+      this.#destinations = [];
+    }
+
+    this._notify(UpdateType.INIT);
+  }
+
   getDestinationsById(id) {
-    const allDestination = this.destinations;
+    const allDestination = this.#destinations;
     return allDestination.find((item) => item.id === id);
   }
 }

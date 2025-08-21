@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType, DEFAULT_TYPE } from '../utils/constants.js';
 import FormEdit from '../view/form-edit.js';
@@ -29,7 +28,7 @@ export default class NewEventPresenter {
     this.#formComponent = new FormEdit({
       waypoint: { type: DEFAULT_TYPE, basePrice: 0 },
       offers: [],
-      destination: { name: '', photos: [], description: '' },
+      destination: { name: '', pictures: [], description: '' },
       offersType: this.#offersModel.getOffersByType(DEFAULT_TYPE),
       destinationAll: this.#destinationModel.destinations,
       offersAll: [...this.#offersModel.offers],
@@ -60,7 +59,7 @@ export default class NewEventPresenter {
     this.#handleDataChange(
       UserAction.ADD_WAYPOINT,
       UpdateType.MINOR,
-      { ...point, id: uuidv4() },
+      point,
     );
     this.destroy();
   };
