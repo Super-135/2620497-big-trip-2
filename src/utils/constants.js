@@ -24,17 +24,26 @@ const FilterType = {
   PRESENT: 'present',
   FUTURE: 'future',
 };
-
 const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
+  DEFAULT: 'Default',
+  EDITING: 'Editing',
 };
-
 const SORTING = ['day', 'event', 'time', 'price', 'offers'];
 const SortType = {
   DAY: 'day',
   TIME: 'time',
   PRICE: 'price',
 };
+const UserAction = {
+  UPDATE_WAYPOINT: 'UpdateWaypoint',
+  ADD_WAYPOINT: 'AddWaypoint',
+  DELETE_WAYPOINT: 'DeleteWaypoint',
+};
+const UpdateType = {
+  PATCH: 'Patch',
+  MINOR: 'Minor',
+  MAJOR: 'Major',
+};
+const DEFAULT_TYPE = 'flight';
 
-export { DateFormat, CLASS_NAME, TextNoEvent, FilterType, Mode, SORTING, SortType };
+export { DateFormat, CLASS_NAME, TextNoEvent, FilterType, Mode, SORTING, SortType, UserAction, UpdateType, DEFAULT_TYPE };

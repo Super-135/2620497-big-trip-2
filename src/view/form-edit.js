@@ -31,7 +31,7 @@ function createTypeTemplate(waypoint, destination, destinationAll) {
       <label class="event__label  event__type-output" for="event-destination-${id}">
         ${type}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${namePoint}" list="destination-list-${id}">
+      <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${namePoint}" list="destination-list-${id}" placeholder=" Куда отправимся?" required>
       <datalist id="destination-list-${id}">
       ${destinationAll.map(({ name: nameDestination }) => `<option value="${nameDestination}"></option>`).join('')}
       </datalist>
@@ -43,10 +43,10 @@ function createDateTemplate(waypoint) {
   return (`
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-${id}">From</label>
-      <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${humanizeDueDate(dateFrom, DateFormat.YEAR)}">
+      <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${humanizeDueDate(dateFrom, DateFormat.YEAR)}" required>
       &mdash;
       <label class="visually-hidden" for="event-end-time-${id}">To</label>
-      <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${humanizeDueDate(dateTo, DateFormat.YEAR)}">
+      <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${humanizeDueDate(dateTo, DateFormat.YEAR)}" required>
     </div>`);
 }
 
@@ -58,7 +58,7 @@ function createPriceTemplate(waypoint) {
         <span class="visually-hidden">Price</span>
         &euro;
       </label>
-      <input class="event__input  event__input--price" id="event-price-${id}" type="text" name="event-price" value="${basePrice}">
+      <input class="event__input  event__input--price" id="event-price-${id}" type="number" min="1" step="1" oninput="if(value.charAt(0) === '0' || value.charAt(0) === '-' || value.includes('.')) value = ''" name="event-price" value="${basePrice}" required>
     </div>`);
 }
 
@@ -66,8 +66,8 @@ function createSaveButton() {
   return ('<button class="event__save-btn  btn  btn--blue" type="submit">Save</button>');
 }
 
-function createResetButton() {
-  return ('<button class="event__reset-btn" type="reset">Delete</button>');
+function createResetButton(isEditMode) {
+  return (`<button class="event__reset-btn" type="reset">${isEditMode ? 'Delete' : 'Cancel'}</button>`);
 }
 
 function createRollupButton() {
@@ -105,13 +105,13 @@ function createOffersTemplate(offers, offersType) {
 
 function createPhotosTemplate(destination) {
   const { photos } = destination;
-  if (photos.length === 0) {
+  if (photos?.length === 0) {
     return '';
   }
   return (`
     <div class="event__photos-container">
       <div class="event__photos-tape">
-      ${photos.map(({ description: descriptionPhoto, src }) => `
+      ${photos?.map(({ description: descriptionPhoto, src }) => `
       <img class="event__photo" src="${src}" alt="${descriptionPhoto}">`).join('')}
       </div>
     </div>`
@@ -120,7 +120,7 @@ function createPhotosTemplate(destination) {
 
 function createDestinationTemplate(destination) {
   const { description, photos } = destination;
-  if (description.length === 0 && photos.length === 0) {
+  if (description?.length === 0 && photos?.length === 0) {
     return '';
   }
   return (`
@@ -131,7 +131,7 @@ function createDestinationTemplate(destination) {
     </section>`);
 }
 
-function createFormEditTemplate(state, offers, destinationAll) {
+function createFormEditTemplate(state, offers, destinationAll, isEditMode) {
   const { waypoint, offersType, destination } = state;
   return (`
   <li class="trip-events__item">
@@ -141,7 +141,7 @@ function createFormEditTemplate(state, offers, destinationAll) {
         ${createDateTemplate(waypoint)}
         ${createPriceTemplate(waypoint)}
         ${createSaveButton()}
-        ${createResetButton()}
+        ${createResetButton(isEditMode)}
         ${createRollupButton()}
       </header>
       <section class="event__details">
@@ -159,19 +159,24 @@ export default class FormEdit extends AbstractStatefulView {
   #handleFormSubmit;
   #datepickerStart;
   #datepickerEnd;
+  #handleDeleteClick;
+  #isEditMode;
 
-  constructor({ waypoint, offers, destination, offersType, destinationAll, offersAll, onFormSubmit }) {
+  constructor({ waypoint, offers, destination, offersType, destinationAll, offersAll, onFormSubmit, onDeleteClick, isEditMode }) {
     super();
     this._setState(FormEdit.addsValuesPointToState(waypoint, offersType, destination));
     this.#offers = offers;
     this.#destinationAll = destinationAll;
     this.#offersAll = offersAll;
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleDeleteClick = onDeleteClick;
+    this.#isEditMode = isEditMode;
+
     this._restoreHandlers();
   }
 
   get template() {
-    return createFormEditTemplate(this._state, this.#offers, this.#destinationAll, this.#offersAll);
+    return createFormEditTemplate(this._state, this.#offers, this.#destinationAll, this.#isEditMode);
   }
 
   removeElement() {
@@ -196,9 +201,12 @@ export default class FormEdit extends AbstractStatefulView {
   _restoreHandlers() {
     this.element.querySelector('.event--edit')?.addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#exitsWithoutSaving);
-    this.element.querySelector('.event__save-btn').addEventListener('click', (evt) => evt.preventDefault());
+    this.element.querySelector('.event__save-btn').addEventListener('click', this.#formSubmitHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeToggleHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#destinationToggleHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#waypointDeleteClickHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#basePriceToggleHandler);
+    this.element.querySelector('.event__available-offers')?.addEventListener('change', this.#offerClickHandler);
 
     this.#setDatepickerStart();
     this.#setDatepickerEnd();
@@ -215,7 +223,10 @@ export default class FormEdit extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(FormEdit.retrievesValuesStateToPoint(this._state));
+    const { destination, basePrice, dateFrom, dateTo } = this._state.waypoint;
+    if (destination && basePrice && dateFrom && dateTo) {
+      this.#handleFormSubmit(FormEdit.retrievesValuesStateToPoint(this._state.waypoint));
+    }
   };
 
   #typeToggleHandler = (evt) => {
@@ -225,6 +236,27 @@ export default class FormEdit extends AbstractStatefulView {
         type: evt.target.value,
       },
       offersType: this.#offersAll.find((offer) => offer.type === evt.target.value),
+    });
+  };
+
+  #offerClickHandler = (evt) => {
+    evt.preventDefault();
+    const offerId = evt.target.id.replace(`${evt.target.name}-`, '');
+    const isChecked = evt.target.checked;
+
+    const newOffers = new Set(this._state.waypoint.offersId);
+
+    if (isChecked) {
+      newOffers.add(offerId);
+    } else {
+      newOffers.delete(offerId);
+    }
+
+    this._setState({
+      waypoint: {
+        ...this._state.waypoint,
+        offersId: Array.from(newOffers),
+      }
     });
   };
 
@@ -243,14 +275,29 @@ export default class FormEdit extends AbstractStatefulView {
       this.updateElement({
         destination: this.#destinationAll.find((item) => item.name === name),
       });
+      this.updateElement({
+        waypoint: {
+          ...this._state.waypoint,
+          destination: this._state.destination.id,
+        },
+      });
     }
+  };
+
+  #basePriceToggleHandler = (evt) => {
+    this.updateElement({
+      waypoint: {
+        ...this._state.waypoint,
+        basePrice: evt.target.value,
+      },
+    });
   };
 
   #dateFromChangeHandler = ([userDate]) => {
     this.updateElement({
       waypoint: {
         ...this._state.waypoint,
-        dateFrom: userDate,
+        dateFrom: userDate.toISOString(),
       },
     });
   };
@@ -259,7 +306,7 @@ export default class FormEdit extends AbstractStatefulView {
     this.updateElement({
       waypoint: {
         ...this._state.waypoint,
-        dateTo: userDate,
+        dateTo: userDate.toISOString(),
       },
     });
   };
@@ -290,6 +337,11 @@ export default class FormEdit extends AbstractStatefulView {
       },
     );
   }
+
+  #waypointDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(FormEdit.retrievesValuesStateToPoint(this._state.waypoint));
+  };
 
   static addsValuesPointToState(waypoint, offersType, destination) {
     return {
