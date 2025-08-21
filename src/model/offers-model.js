@@ -1,12 +1,14 @@
 import Observable from '../framework/observable.js';
-import { mockOptions } from '../mock/waypoints.js';
+import { UpdateType } from '../utils/constants.js';
 
 export default class OffersModel extends Observable {
+  #waypointsApiService;
+  #offers = [];
 
-  /**
-    * @type {AllOffers[]}
-    */
-  #offers = mockOptions;
+  constructor({ waypointsApiService }) {
+    super();
+    this.#waypointsApiService = waypointsApiService;
+  }
 
   /**
     * @returns {AllOffers[]}
@@ -15,12 +17,18 @@ export default class OffersModel extends Observable {
     return this.#offers;
   }
 
-  /**
-   * @param {RandomWaypoint.type} type
-   * @returns {offer[]} offers
-  */
+  async init() {
+    try {
+      this.#offers = await this.#waypointsApiService.offers;
+    } catch (err) {
+      this.#offers = [];
+    }
+
+    this._notify(UpdateType.INIT);
+  }
+
   getOffersByType(type) {
-    const allOffers = this.offers;
+    const allOffers = this.#offers;
     return allOffers.find((offer) => offer.type === type);
   }
 

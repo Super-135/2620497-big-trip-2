@@ -5,6 +5,7 @@ import NoEvent from '../view/no-event.js';
 import TripInfo from '../view/trip-info.js';
 import WaypointPresenter from './waypoint-presenter.js';
 import WaypointListView from '../view/waypoint-list-view.js';
+import Loading from '../view/loading.js';
 import { generateSorting } from '../utils/sort.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { sortWaypointByDate, sortWaypointByPrice, sortWaypointByDuration, filter } from '../utils/utilities.js';
@@ -19,6 +20,7 @@ export default class TripPresenter {
   #filterModel;
   #sorting;
   #tripInfo = new TripInfo();
+  #loadingComponent = new Loading();
   #waypointListComponent;
   #noEventComponent;
   #waypointPresenters = new Map();
@@ -26,6 +28,7 @@ export default class TripPresenter {
   #sortingState = generateSorting(this.#currentSortType);
   #filterType = FilterType.EVERYTHING;
   #newEventPresenter;
+  #isLoading = true;
 
   constructor({ headerContainer, mainContainer, waypointModel, offersModel, destinationModel, filterModel, onNewEventDestroy }) {
     this.#headerContainer = headerContainer;
@@ -96,6 +99,7 @@ export default class TripPresenter {
     this.#waypointPresenters.clear();
 
     remove(this.#sorting);
+    remove(this.#loadingComponent);
 
     if (this.#noEventComponent) {
       remove(this.#noEventComponent);
@@ -107,6 +111,10 @@ export default class TripPresenter {
   }
 
   #renderWaypointList() {
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
     const waypointCount = this.waypoints.length;
     const waypoints = this.waypoints.slice(0, waypointCount);
     if (waypointCount === 0) {
@@ -151,6 +159,11 @@ export default class TripPresenter {
         this.#clearWaypointList({ resetSortType: true });
         this.#renderWaypointList();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderWaypointList();
+        break;
     }
   };
 
@@ -161,6 +174,10 @@ export default class TripPresenter {
       waypointModel: this.#waypointModel,
     });
     filterPresenter.init();
+  }
+
+  #renderLoading() {
+    render(this.#loadingComponent, this.#mainContainer);
   }
 
   #renderTripInfo() {
@@ -196,10 +213,6 @@ export default class TripPresenter {
   #renderApp() {
     this.#renderFilters();
     this.#renderTripInfo();
-    if (this.waypoints.length === 0) {
-      this.#renderNoEvent();
-      return;
-    }
     this.#renderWaypointList();
   }
 }
