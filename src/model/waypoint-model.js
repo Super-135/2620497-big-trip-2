@@ -1,70 +1,57 @@
-import { getRandomWaypoint, mockDestination, mockOptions } from '../mock/waypoints.js';
+import Observable from '../framework/observable.js';
+import { getRandomWaypoint } from '../mock/waypoints.js';
 
 const WAYPOINT_COUNT = 7;
 
-export default class WaypointModel {
+export default class WaypointModel extends Observable {
   /**
     * @type {RandomWaypoint[]}
     */
   #waypoints = Array.from({ length: WAYPOINT_COUNT }, getRandomWaypoint);
 
   /**
-    * @type {AllOffers[]}
-    */
-  #offers = mockOptions;
-
-  /**
-     * @type {Destination[]}
-     */
-  #destination = mockDestination;
-
-  /**
     * @returns {RandomWaypoint[]}
     */
-
   get waypoints() {
-    return structuredClone(this.#waypoints);
+    return this.#waypoints;
   }
 
-  /**
-    * @returns {AllOffers[]}
-    */
-  get offers() {
-    return structuredClone(this.#offers);
+  updateWaypoint(updateType, update) {
+    const index = this.#waypoints.findIndex((waypoint) => waypoint.id === update.id);
+
+    if (index === -1) {
+      throw new Error('Can\'t update unexisting waypoint');
+    }
+
+    this.#waypoints = [
+      ...this.#waypoints.slice(0, index),
+      update,
+      ...this.#waypoints.slice(index + 1),
+    ];
+
+    this._notify(updateType, update);
   }
 
-  /**
-   * @param {RandomWaypoint.type} type
-   * @returns {offer[]} offers
-  */
-  getOffersByType(type) {
-    const allOffers = this.offers;
-    return allOffers.find((offer) => offer.type === type);
+  addWaypoint(updateType, update) {
+    this.#waypoints = [
+      update,
+      ...this.#waypoints,
+    ];
+
+    this._notify(updateType, update);
   }
 
-  /**
-   * @param {RandomWaypoint.type} type
-   * @param {RandomWaypoint.offersId} itemsId
-   * @returns {offer[]} offers
-  */
-  getOffersById(type, itemsId) {
-    const offersType = this.getOffersByType(type);
-    return offersType.offers.filter((item) => itemsId.find((id) => item.id === id));
-  }
+  deleteWaypoint(updateType, update) {
+    const index = this.#waypoints.findIndex((waypoint) => waypoint.id === update.id);
+    if (index === -1) {
+      throw new Error('Can\'t delete unexisting waypoint');
+    }
 
-  /**
-    * @returns {Destination[]}
-    */
-  get destinations() {
-    return structuredClone(this.#destination);
-  }
+    this.#waypoints = [
+      ...this.#waypoints.slice(0, index),
+      ...this.#waypoints.slice(index + 1),
+    ];
 
-  /**
-   * @param {RandomWaypoint.destination} id
-   * @returns {Destination[]} destinations
-  */
-  getDestinationsById(id) {
-    const allDestination = this.destinations;
-    return allDestination.find((item) => item.id === id);
+    this._notify(updateType);
   }
 }
