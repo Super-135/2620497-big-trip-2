@@ -135,7 +135,7 @@ function createFormEditTemplate(state, offers, destinationAll, isEditMode) {
   const { waypoint, offersType, destination } = state;
   return (`
   <li class="trip-events__item">
-    <form class="event event--edit" action="#" method="post">
+    <form class="event event--edit" action="#" method="post" autocomplete="off">
       <header class="event__header">
         ${createTypeTemplate(waypoint, destination, destinationAll)}
         ${createDateTemplate(waypoint)}
