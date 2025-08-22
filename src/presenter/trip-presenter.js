@@ -6,11 +6,16 @@ import TripInfo from '../view/trip-info.js';
 import WaypointPresenter from './waypoint-presenter.js';
 import WaypointListView from '../view/waypoint-list-view.js';
 import Loading from '../view/loading.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { generateSorting } from '../utils/sort.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
 import { sortWaypointByDate, sortWaypointByPrice, sortWaypointByDuration, filter } from '../utils/utilities.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../utils/constants.js';
 
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 export default class TripPresenter {
   #headerContainer;
   #mainContainer;
@@ -29,6 +34,10 @@ export default class TripPresenter {
   #filterType = FilterType.EVERYTHING;
   #newEventPresenter;
   #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   constructor({ headerContainer, mainContainer, waypointModel, offersModel, destinationModel, filterModel, onNewEventDestroy }) {
     this.#headerContainer = headerContainer;
@@ -132,18 +141,36 @@ export default class TripPresenter {
     this.#waypointPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_WAYPOINT:
-        this.#waypointModel.updateWaypoint(updateType, update);
+        this.#waypointPresenters.get(update.id).setSaving();
+        try {
+          await this.#waypointModel.updateWaypoint(updateType, update);
+        } catch (err) {
+          this.#waypointPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_WAYPOINT:
-        this.#waypointModel.addWaypoint(updateType, update);
+        this.#newEventPresenter.setSaving();
+        try {
+          await this.#waypointModel.addWaypoint(updateType, update);
+        } catch (err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_WAYPOINT:
-        this.#waypointModel.deleteWaypoint(updateType, update);
+        this.#waypointPresenters.get(update.id).setDeleting();
+        try {
+          this.#waypointModel.deleteWaypoint(updateType, update);
+        } catch (err) {
+          this.#waypointPresenters.get(update.id).setAborting();
+        }
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {

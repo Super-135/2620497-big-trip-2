@@ -46,5 +46,6 @@ const UpdateType = {
   INIT: 'Init',
 };
 const DEFAULT_TYPE = 'flight';
+const TYPE = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
-export { DateFormat, CLASS_NAME, TextNoEvent, FilterType, Mode, SORTING, SortType, UserAction, UpdateType, DEFAULT_TYPE };
+export { DateFormat, CLASS_NAME, TextNoEvent, FilterType, Mode, SORTING, SortType, UserAction, UpdateType, DEFAULT_TYPE, TYPE };
