@@ -94,4 +94,3 @@ export default class WaypointModel extends Observable {
     return adaptedWaypoint;
   }
 }
-

@@ -2,10 +2,9 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizeDueDate } from '../utils/utilities.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
-import { TYPE } from '../mock/data.js';
-import { DateFormat, CLASS_NAME } from '../utils/constants.js';
+import { DateFormat, CLASS_NAME, TYPE } from '../utils/constants.js';
 
-function createTypeTemplate(waypoint, destination, destinationAll) {
+function createTypeTemplate(waypoint, destination, destinationAll, isDisabled) {
   const { type, id } = waypoint;
   const { name: namePoint } = destination;
   return (`
@@ -14,10 +13,10 @@ function createTypeTemplate(waypoint, destination, destinationAll) {
         <span class="visually-hidden">Choose event type</span>
         <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event ${type} icon">
       </label>
-      <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox">
+      <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
       <div class="event__type-list">
-        <fieldset class="event__type-group">
+        <fieldset class="event__type-group" ${isDisabled ? 'disabled' : ''}>
           <legend class="visually-hidden">Event type</legend>
           ${TYPE.map((item) => `<div class="event__type-item">
             <input id="event-type-${item}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${item}" ${item === type ? 'checked' : ''}>
@@ -31,26 +30,26 @@ function createTypeTemplate(waypoint, destination, destinationAll) {
       <label class="event__label  event__type-output" for="event-destination-${id}">
         ${type}
       </label>
-      <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${namePoint}" list="destination-list-${id}" placeholder=" Where will you go?" required>
+      <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${namePoint}" list="destination-list-${id}" placeholder=" Where will you go?" required ${isDisabled ? 'disabled' : ''}>
       <datalist id="destination-list-${id}">
       ${destinationAll.map(({ name: nameDestination }) => `<option value="${nameDestination}"></option>`).join('')}
       </datalist>
     </div>`);
 }
 
-function createDateTemplate(waypoint) {
+function createDateTemplate(waypoint, isDisabled) {
   const { dateFrom, dateTo, id } = waypoint;
   return (`
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-${id}">From</label>
-      <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${humanizeDueDate(dateFrom, DateFormat.YEAR)}" required>
+      <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${humanizeDueDate(dateFrom, DateFormat.YEAR)}" required ${isDisabled ? 'disabled' : ''}>
       &mdash;
       <label class="visually-hidden" for="event-end-time-${id}">To</label>
-      <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${humanizeDueDate(dateTo, DateFormat.YEAR)}" required>
+      <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${humanizeDueDate(dateTo, DateFormat.YEAR)}" required ${isDisabled ? 'disabled' : ''}>
     </div>`);
 }
 
-function createPriceTemplate(waypoint) {
+function createPriceTemplate(waypoint, isDisabled) {
   const { basePrice, id } = waypoint;
   return (`
     <div class="event__field-group  event__field-group--price">
@@ -58,27 +57,27 @@ function createPriceTemplate(waypoint) {
         <span class="visually-hidden">Price</span>
         &euro;
       </label>
-      <input class="event__input  event__input--price" id="event-price-${id}" type="number" min="1" max="100000" step="1" oninput="if(value.charAt(0) === '0' || value.charAt(0) === '-' || value.includes('.')) value = ''" name="event-price" value="${basePrice}" required>
+      <input class="event__input  event__input--price" id="event-price-${id}" type="number" min="1" max="100000" step="1" oninput="if(value.charAt(0) === '0' || value.charAt(0) === '-' || value.includes('.')) value = ''" name="event-price" value="${basePrice}" required ${isDisabled ? 'disabled' : ''}>
     </div>`);
 }
 
-function createSaveButton() {
-  return ('<button class="event__save-btn  btn  btn--blue" type="submit">Save</button>');
+function createSaveButton(isDisabled, isSaving) {
+  return (`<button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>`);
 }
 
-function createResetButton(isEditMode) {
-  return (`<button class="event__reset-btn" type="reset">${isEditMode ? 'Delete' : 'Cancel'}</button>`);
+function createResetButton(isEditMode, isDisabled, isDeleting) {
+  return (`<button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${isEditMode ? `${isDeleting ? 'Deleting...' : 'Delete'}` : 'Cansel'}</button>`);
 }
 
-function createRollupButton() {
+function createRollupButton(isDisabled) {
   return (`
-    <button class="event__rollup-btn" type="button">
+    <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
       <span class="visually-hidden">Open event</span>
     </button>
     `);
 }
 
-function createOffersTemplate(offers, offersType) {
+function createOffersTemplate(offers, offersType, isDisabled) {
   const idPoints = offers.map((item) => item.id);
   if (offersType.offers.length !== 0) {
     return (`
@@ -88,7 +87,7 @@ function createOffersTemplate(offers, offersType) {
         <div class="event__available-offers">
         ${offersType.offers.map(({ title: titleOffersType, id: idOfferType, price }) => `
         <div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${CLASS_NAME[titleOffersType]}-${idOfferType}" type="checkbox" name="event-offer-${CLASS_NAME[titleOffersType]}" ${idPoints.includes(idOfferType) ? 'checked' : ''}>
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${CLASS_NAME[titleOffersType]}-${idOfferType}" type="checkbox" name="event-offer-${CLASS_NAME[titleOffersType]}" ${idPoints.includes(idOfferType) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
           <label class="event__offer-label" for="event-offer-${CLASS_NAME[titleOffersType]}-${idOfferType}">
             <span class="event__offer-title">${titleOffersType}</span>
             &plus;&euro;&nbsp;
@@ -132,20 +131,20 @@ function createDestinationTemplate(destination) {
 }
 
 function createFormEditTemplate(state, offers, destinationAll, isEditMode) {
-  const { waypoint, offersType, destination } = state;
+  const { waypoint, offersType, destination, isDisabled, isSaving, isDeleting } = state;
   return (`
   <li class="trip-events__item">
     <form class="event event--edit" action="#" method="post" autocomplete="off">
       <header class="event__header">
-        ${createTypeTemplate(waypoint, destination, destinationAll)}
-        ${createDateTemplate(waypoint)}
-        ${createPriceTemplate(waypoint)}
-        ${createSaveButton()}
-        ${createResetButton(isEditMode)}
-        ${createRollupButton()}
+        ${createTypeTemplate(waypoint, destination, destinationAll, isDisabled)}
+        ${createDateTemplate(waypoint, isDisabled)}
+        ${createPriceTemplate(waypoint, isDisabled)}
+        ${createSaveButton(isDisabled, isSaving)}
+        ${createResetButton(isEditMode, isDisabled, isDeleting)}
+        ${createRollupButton(isDisabled)}
       </header>
       <section class="event__details">
-        ${createOffersTemplate(offers, offersType)}
+        ${createOffersTemplate(offers, offersType, isDisabled)}
         ${createDestinationTemplate(destination)}
       </section>
     </form>
@@ -347,13 +346,22 @@ export default class FormEdit extends AbstractStatefulView {
 
   static addsValuesPointToState(waypoint, offersType, destination) {
     return {
-      waypoint: { ...waypoint },
+      waypoint: {
+        ...waypoint,
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      },
       offersType: { ...offersType },
       destination: { ...destination },
     };
   }
 
   static retrievesValuesStateToPoint(state) {
-    return { ...state };
+    const states = { ...state };
+    delete states.isDisabled;
+    delete states.isSaving;
+    delete states.isDeleting;
+    return states;
   }
 }
