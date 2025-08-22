@@ -1,7 +1,7 @@
-import { SORTING } from './constants.js';
+import { SORTING_TYPES } from './constants.js';
 
 function generateSorting(sortType) {
-  return SORTING.map((value) => ({
+  return SORTING_TYPES.map((value) => ({
     value,
     isSelected: value === sortType,
     isDisabled: value === 'event' || value === 'offers',

@@ -19,11 +19,11 @@ export default class DestinationModel extends Observable {
   async init() {
     try {
       this.#destinations = await this.#waypointsApiService.destinations;
+      this._notify(UpdateType.INIT);
     } catch (err) {
       this.#destinations = [];
+      this._notify(UpdateType.ERROR);
     }
-
-    this._notify(UpdateType.INIT);
   }
 
   getDestinationsById(id) {

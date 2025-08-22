@@ -1,6 +1,6 @@
-import { render, replace, remove } from '../framework/render.js';
 import Waypoint from '../view/waypoint.js';
 import FormEdit from '../view/form-edit.js';
+import { render, replace, remove } from '../framework/render.js';
 import { Mode, UserAction, UpdateType } from '../utils/constants.js';
 export default class WaypointPresenter {
   #waypointListComponent = null;
@@ -11,6 +11,7 @@ export default class WaypointPresenter {
   #waypoint = null;
   #offersType = null;
   #destination = null;
+  #offers = null;
   #handleDataChange = null;
   #handleModeChange = null;
   #mode = Mode.DEFAULT;
@@ -27,13 +28,14 @@ export default class WaypointPresenter {
     this.#waypoint = point;
     this.#offersType = this.#offersModel.getOffersByType(point.type);
     this.#destination = this.#destinationModel.getDestinationsById(point.destination);
+    this.#offers = [...this.#offersModel.getOffersById(point.type, point.offersId)];
 
     const prevWaypointComponent = this.#waypointComponent;
     const prevWaypointEditComponent = this.#waypointEditComponent;
 
     this.#waypointComponent = new Waypoint({
       waypoint: this.#waypoint,
-      offers: [...this.#offersModel.getOffersById(point.type, point.offersId)],
+      offers: this.#offers,
       destination: this.#destination,
       onEditClick: this.#handleEditClick,
       onFavoriteClick: this.#handleFavoriteClick,
@@ -42,7 +44,7 @@ export default class WaypointPresenter {
     this.#waypointEditComponent = new FormEdit({
       waypoint: this.#waypoint,
       offersType: this.#offersType,
-      offers: [...this.#offersModel.getOffersById(point.type, point.offersId)],
+      offers: this.#offers,
       destination: this.#destination,
       destinationAll: this.#destinationModel.destinations,
       offersAll: [...this.#offersModel.offers],
@@ -72,17 +74,9 @@ export default class WaypointPresenter {
     remove(this.#waypointEditComponent);
   }
 
-  #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      this.#waypointEditComponent.reset(this.#waypoint, this.#offersType, this.#destination);
-      this.#replaceFormToPoint();
-    }
-  };
-
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
-      this.#waypointEditComponent.reset(this.#waypoint, this.#offersType, this.#destination);
+      this.#waypointEditComponent.reset(this.#waypoint, this.#offersType, this.#destination, this.#offers);
       this.#replaceFormToPoint();
     }
   }
@@ -122,16 +116,24 @@ export default class WaypointPresenter {
     this.#waypointEditComponent.shake(resetFormState);
   }
 
+  #documentKeydownHandler = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#waypointEditComponent.reset(this.#waypoint, this.#offersType, this.#destination, this.#offers);
+      this.#replaceFormToPoint();
+    }
+  };
+
   #replacePointToForm() {
     replace(this.#waypointEditComponent, this.#waypointComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+    document.addEventListener('keydown', this.#documentKeydownHandler);
     this.#handleModeChange();
     this.#mode = Mode.EDITING;
   }
 
   #replaceFormToPoint() {
     replace(this.#waypointComponent, this.#waypointEditComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    document.removeEventListener('keydown', this.#documentKeydownHandler);
     this.#mode = Mode.DEFAULT;
   }
 

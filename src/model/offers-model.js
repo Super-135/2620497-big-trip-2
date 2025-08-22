@@ -20,11 +20,11 @@ export default class OffersModel extends Observable {
   async init() {
     try {
       this.#offers = await this.#waypointsApiService.offers;
+      this._notify(UpdateType.INIT);
     } catch (err) {
       this.#offers = [];
+      this._notify(UpdateType.ERROR);
     }
-
-    this._notify(UpdateType.INIT);
   }
 
   getOffersByType(type) {
@@ -32,11 +32,6 @@ export default class OffersModel extends Observable {
     return allOffers.find((offer) => offer.type === type);
   }
 
-  /**
-   * @param {RandomWaypoint.type} type
-   * @param {RandomWaypoint.offersId} itemsId
-   * @returns {offer[]} offers
-  */
   getOffersById(type, itemsId = ['']) {
     const offersType = this.getOffersByType(type);
     return offersType.offers.filter((item) => itemsId.find((id) => item.id === id));
