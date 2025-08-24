@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeDueDate, getDuration } from '../utils/utilities.js';
+import { humanizeDueDate, getDuration } from '../utils/common.js';
 import { DateFormat } from '../utils/constants.js';
 
 function createStartDateTemplate(start) {
