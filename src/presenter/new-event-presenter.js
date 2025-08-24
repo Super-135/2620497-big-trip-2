@@ -1,4 +1,4 @@
-import FormEdit from '../view/form-edit.js';
+import FormEdit from '../view/form-edit-view.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType, DEFAULT_TYPE } from '../utils/constants.js';
 

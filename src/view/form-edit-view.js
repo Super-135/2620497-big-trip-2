@@ -73,12 +73,10 @@ function createResetButton(isEditMode, isDeleting) {
   return (`<button class="event__reset-btn" type="reset">${isEditMode ? `${isDeleting ? 'Deleting...' : 'Delete'}` : 'Cancel'}</button>`);
 }
 
-function createRollupButton() {
-  return (`
-    <button class="event__rollup-btn" type="button">
+function createRollupButton(isEditMode, isDisabled) {
+  return (!isEditMode ? '' : `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
       <span class="visually-hidden">Open event</span>
-    </button>
-    `);
+    </button>`);
 }
 
 function createOffersTemplate(offers, offersType, isDisabled) {
@@ -139,14 +137,14 @@ function createFormEditTemplate(state, destinationAll, isEditMode) {
   const { waypoint, offersType, destination, isDisabled, isSaving, isDeleting, offers } = state;
   return (`
   <li class="trip-events__item">
-    <form class="event event--edit" action="#" method="post" autocomplete="off">
+    <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         ${createTypeTemplate(waypoint, destination, destinationAll, isDisabled)}
         ${createDateTemplate(waypoint, isDisabled)}
         ${createPriceTemplate(waypoint, isDisabled)}
         ${createSaveButton(isDisabled, isSaving)}
         ${createResetButton(isEditMode, isDeleting)}
-        ${createRollupButton()}
+        ${createRollupButton(isEditMode, isDisabled)}
       </header>
       <section class="event__details">
         ${createOffersTemplate(offers, offersType, isDisabled)}
@@ -202,7 +200,9 @@ export default class FormEdit extends AbstractStatefulView {
 
   _restoreHandlers() {
     this.element.querySelector('.event--edit')?.addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupButtonClickHandler);
+    if (this.element.querySelector('.event__rollup-btn')) {
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#rollupButtonClickHandler);
+    }
     this.element.querySelector('.event__save-btn').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#eventTypeInputChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#eventDestinationInputHandler);
@@ -295,17 +295,17 @@ export default class FormEdit extends AbstractStatefulView {
     this.updateElement({
       waypoint: {
         ...this._state.waypoint,
-        dateFrom: userDate.toISOString(),
+        dateFrom: userDate ? userDate.toISOString() : null,
       },
     });
   };
 
   #dateToChangeHandler = ([userDate]) => {
-    if (userDate.toISOString() >= this._state.waypoint.dateFrom) {
+    if (this._state.waypoint.dateFrom !== null && userDate.toISOString() >= this._state.waypoint.dateFrom) {
       this._setState({
         waypoint: {
           ...this._state.waypoint,
-          dateTo: userDate.toISOString(),
+          dateTo: userDate ? userDate.toISOString() : null,
         },
       });
     }
@@ -320,6 +320,7 @@ export default class FormEdit extends AbstractStatefulView {
         'time_24hr': true,
         defaultDate: this._state.waypoint.dateFrom,
         onChange: this.#dateFromChangeHandler,
+        maxDate: this._state.waypoint.dateTo,
       },
     );
   }

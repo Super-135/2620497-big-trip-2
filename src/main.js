@@ -3,7 +3,7 @@ import WaypointModel from './model/waypoint-model.js';
 import OffersModel from './model/offers-model.js';
 import DestinationModel from './model/destination-model.js';
 import FilterModel from './model/filter-model.js';
-import ButtonNewEvent from './view/button-new-event.js';
+import ButtonNewEvent from './view/button-new-event-view.js';
 import WaypointsApiService from './waypoints-api-service.js';
 import { render, RenderPosition } from './framework/render.js';
 import { handleButtonDisabled } from './utils/common.js';

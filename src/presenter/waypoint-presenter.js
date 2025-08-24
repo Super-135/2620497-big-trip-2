@@ -1,5 +1,5 @@
-import Waypoint from '../view/waypoint.js';
-import FormEdit from '../view/form-edit.js';
+import Waypoint from '../view/waypoint-view.js';
+import FormEdit from '../view/form-edit-view.js';
 import { render, replace, remove } from '../framework/render.js';
 import { Mode, UserAction, UpdateType } from '../utils/constants.js';
 export default class WaypointPresenter {

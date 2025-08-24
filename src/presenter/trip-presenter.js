@@ -1,11 +1,11 @@
 import FilterPresenter from './filter-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
-import Sorting from '../view/sorting.js';
-import NoEvent from '../view/no-event.js';
+import Sorting from '../view/sorting-view.js';
+import NoEvent from '../view/no-event-view.js';
 import TripInfoPresenter from './trip-info-presenter.js';
 import WaypointPresenter from './waypoint-presenter.js';
 import WaypointListView from '../view/waypoint-list-view.js';
-import Loading from '../view/loading.js';
+import Loading from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { generateSorting } from '../utils/sort.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
