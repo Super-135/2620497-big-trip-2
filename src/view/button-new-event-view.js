@@ -4,7 +4,7 @@ function createButtonNewEventTemplate() {
   return ('<button class="trip-main__event-add-btn  btn  btn--big  btn--yellow" type="button" disabled>New event</button>');
 }
 
-export default class ButtonNewEvent extends AbstractView {
+export default class ButtonNewEventView extends AbstractView {
   #handleClick;
 
   constructor({ onClick }) {

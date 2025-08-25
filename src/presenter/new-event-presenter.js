@@ -1,4 +1,4 @@
-import FormEdit from '../view/form-edit-view.js';
+import FiltersView from '../view/form-edit-view.js';
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { UserAction, UpdateType, DEFAULT_TYPE } from '../utils/constants.js';
 
@@ -25,7 +25,7 @@ export default class NewEventPresenter {
       return;
     }
 
-    this.#formComponent = new FormEdit({
+    this.#formComponent = new FiltersView({
       waypoint: { type: DEFAULT_TYPE, basePrice: 0 },
       offers: [],
       destination: { name: '', pictures: [], description: '' },

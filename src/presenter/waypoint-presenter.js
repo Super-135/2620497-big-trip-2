@@ -1,5 +1,5 @@
-import Waypoint from '../view/waypoint-view.js';
-import FormEdit from '../view/form-edit-view.js';
+import WaypointView from '../view/waypoint-view.js';
+import FiltersView from '../view/form-edit-view.js';
 import { render, replace, remove } from '../framework/render.js';
 import { Mode, UserAction, UpdateType } from '../utils/constants.js';
 export default class WaypointPresenter {
@@ -33,7 +33,7 @@ export default class WaypointPresenter {
     const prevWaypointComponent = this.#waypointComponent;
     const prevWaypointEditComponent = this.#waypointEditComponent;
 
-    this.#waypointComponent = new Waypoint({
+    this.#waypointComponent = new WaypointView({
       waypoint: this.#waypoint,
       offers: this.#offers,
       destination: this.#destination,
@@ -41,7 +41,7 @@ export default class WaypointPresenter {
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
-    this.#waypointEditComponent = new FormEdit({
+    this.#waypointEditComponent = new FiltersView({
       waypoint: this.#waypoint,
       offersType: this.#offersType,
       offers: this.#offers,

@@ -5,7 +5,7 @@ function createLoadingTemplate(isError) {
   return (`<p class="trip-events__msg">${isError ? LoadingMessage.ERROR : LoadingMessage.READY}</p>`);
 }
 
-export default class Loading extends AbstractView {
+export default class LoadingView extends AbstractView {
   #isError;
 
   constructor({ isError }) {

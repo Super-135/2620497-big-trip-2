@@ -29,7 +29,7 @@ function createFiltersTemplate(filterItems, currentFilterType) {
 </div>`);
 }
 
-export default class Filters extends AbstractView {
+export default class FiltersView extends AbstractView {
   #filters;
   #currentFilter;
   #handleFilterTypeChange;

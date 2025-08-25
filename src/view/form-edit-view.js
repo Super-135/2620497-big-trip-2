@@ -4,10 +4,10 @@ import 'flatpickr/dist/flatpickr.min.css';
 import { DateFormat, TYPES } from '../utils/constants.js';
 import { humanizeDueDate } from '../utils/common.js';
 
-function createTypeTemplate(waypoint, destination, destinationAll, isDisabled) {
+function createTypeTemplate(waypoint, destination, destinations, isDisabled) {
   const { type, id = 1 } = waypoint;
   const { name: namePoint } = destination;
-  const cities = destinationAll.map((element) => element.name);
+  const cities = destinations.map((element) => element.name);
   const pattern = cities.join('|');
 
   return (`
@@ -35,7 +35,7 @@ function createTypeTemplate(waypoint, destination, destinationAll, isDisabled) {
       </label>
       <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${namePoint}" list="destination-list-${id}" placeholder=" Where will you go?" ${isDisabled ? 'disabled' : ''} pattern="${pattern}" title="Choose from the suggested ones" required>
       <datalist id="destination-list-${id}">
-      ${destinationAll.map(({ name: nameDestination }) => `<option value="${nameDestination}"></option>`).join('')}
+      ${destinations.map(({ name: nameDestination }) => `<option value="${nameDestination}"></option>`).join('')}
       </datalist>
     </div>`);
 }
@@ -154,7 +154,7 @@ function createFormEditTemplate(state, destinationAll, isEditMode) {
   </li>`);
 }
 
-export default class FormEdit extends AbstractStatefulView {
+export default class FormEditView extends AbstractStatefulView {
   #destinationAll;
   #offersAll;
   #handleFormSubmit;
@@ -165,7 +165,7 @@ export default class FormEdit extends AbstractStatefulView {
 
   constructor({ waypoint, offers, destination, offersType, destinationAll, offersAll, onFormSubmit, onDeleteClick, isEditMode }) {
     super();
-    this._setState(FormEdit.addsValuesPointToState(waypoint, offersType, destination, offers));
+    this._setState(FormEditView.addsValuesPointToState(waypoint, offersType, destination, offers));
     this.#destinationAll = destinationAll;
     this.#offersAll = offersAll;
     this.#handleFormSubmit = onFormSubmit;
@@ -194,7 +194,7 @@ export default class FormEdit extends AbstractStatefulView {
 
   reset(waypoint, offersType, destination, offers) {
     this.updateElement(
-      FormEdit.addsValuesPointToState(waypoint, offersType, destination, offers)
+      FormEditView.addsValuesPointToState(waypoint, offersType, destination, offers)
     );
   }
 
@@ -225,7 +225,7 @@ export default class FormEdit extends AbstractStatefulView {
     evt.preventDefault();
     const { dateFrom, dateTo } = this._state.waypoint;
     if (dateFrom && dateTo) {
-      this.#handleFormSubmit(FormEdit.retrievesValuesStateToPoint(this._state.waypoint));
+      this.#handleFormSubmit(FormEditView.retrievesValuesStateToPoint(this._state.waypoint));
     }
   };
 
@@ -342,7 +342,7 @@ export default class FormEdit extends AbstractStatefulView {
   #waypointDeleteClickHandler = (evt) => {
     evt.preventDefault();
     evt.target.setAttribute('disabled', true);
-    this.#handleDeleteClick(FormEdit.retrievesValuesStateToPoint(this._state.waypoint));
+    this.#handleDeleteClick(FormEditView.retrievesValuesStateToPoint(this._state.waypoint));
   };
 
   static addsValuesPointToState(waypoint, offersType, destination, offers) {

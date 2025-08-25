@@ -14,7 +14,7 @@ function createTripInfoTemplate(dateFrom, dateTo, destinationNames, totalCost) {
     </section>`);
 }
 
-export default class TripInfo extends AbstractView {
+export default class TripInfoView extends AbstractView {
   #dateFrom;
   #dateTo;
   #destinationNames;

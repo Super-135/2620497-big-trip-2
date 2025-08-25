@@ -1,4 +1,4 @@
-import TripInfo from '../view/trip-info-view.js';
+import TripInfoView from '../view/trip-info-view.js';
 import { replace, remove, render, RenderPosition } from '../framework/render.js';
 
 export default class TripInfoPresenter {
@@ -44,9 +44,9 @@ export default class TripInfoPresenter {
     const totalBasePrice = points.map((item) => item.basePrice).reduce((acc, number) => acc + number, 0);
     const allOffersWaypoints = points.map((item) => this.#offersModel.getOffersById(item.type, item.offersId));
     const allOffersWaypointsPrice = [];
-    allOffersWaypoints.map((item) => {
-      if (item !== null) {
-        item.map((innerItem) => allOffersWaypointsPrice.push(innerItem.price));
+    allOffersWaypoints.map((items) => {
+      if (items !== null) {
+        items.map((innerItem) => allOffersWaypointsPrice.push(innerItem.price));
       }
     });
     return allOffersWaypointsPrice.reduce((acc, number) => acc + number, 0) + totalBasePrice;
@@ -61,7 +61,7 @@ export default class TripInfoPresenter {
     if (totalCost === 0) {
       return;
     }
-    this.#tripInfoComponent = new TripInfo({ dateFrom, dateTo, destinationNames, totalCost });
+    this.#tripInfoComponent = new TripInfoView({ dateFrom, dateTo, destinationNames, totalCost });
 
     if (prevTripInfoComponents === null) {
       render(this.#tripInfoComponent, this.#tripInfoContainer, RenderPosition.BEFOREBEGIN);

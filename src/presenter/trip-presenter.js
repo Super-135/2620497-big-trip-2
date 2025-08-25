@@ -1,11 +1,11 @@
 import FilterPresenter from './filter-presenter.js';
 import NewEventPresenter from './new-event-presenter.js';
-import Sorting from '../view/sorting-view.js';
-import NoEvent from '../view/no-event-view.js';
+import SortingView from '../view/sorting-view.js';
+import NoEventView from '../view/no-event-view.js';
 import TripInfoPresenter from './trip-info-presenter.js';
 import WaypointPresenter from './waypoint-presenter.js';
 import WaypointListView from '../view/waypoint-list-view.js';
-import Loading from '../view/loading-view.js';
+import LoadingView from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { generateSorting } from '../utils/sort.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
@@ -239,7 +239,7 @@ export default class TripPresenter {
   }
 
   #renderLoading(isError) {
-    this.#loadingComponent = new Loading(isError);
+    this.#loadingComponent = new LoadingView(isError);
     render(this.#loadingComponent, this.#mainContainer);
   }
 
@@ -254,7 +254,7 @@ export default class TripPresenter {
   }
 
   #renderNoEvent() {
-    this.#noEventComponent = new NoEvent({ filterType: this.#filterType });
+    this.#noEventComponent = new NoEventView({ filterType: this.#filterType });
     render(this.#noEventComponent, this.#mainContainer);
   }
 
@@ -270,7 +270,7 @@ export default class TripPresenter {
 
   #renderSort() {
     this.#sortingState = generateSorting(this.#currentSortType);
-    this.#sorting = new Sorting({
+    this.#sorting = new SortingView({
       currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange,
       sorting: this.#sortingState,
